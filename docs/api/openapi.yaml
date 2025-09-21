@@ -1,0 +1,539 @@
+openapi: 3.0.3
+info:
+  title: GreenCart Logistics Management API
+  description: |
+    Comprehensive API for managing logistics operations including drivers, routes, orders, and simulations.
+    
+    ## Features
+    - JWT-based authentication
+    - Real-time KPI tracking
+    - Advanced simulation engine
+    - Company rules implementation
+    
+    ## Business Rules
+    1. Late Delivery Penalty: ₹50 for deliveries > (base time + 10 minutes)
+    2. Driver Fatigue Rule: 30% speed reduction for drivers working >8 hours  
+    3. High-Value Bonus: 10% bonus for orders >₹1000 delivered on time
+    4. Fuel Cost: ₹5/km base + ₹2/km traffic surcharge
+    5. Efficiency Score: (On-time deliveries / Total deliveries) × 100
+  version: 1.0.0
+  contact:
+    name: Sudhanshu
+    email: sudhanshu.srs@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5000/api
+    description: Development server
+  - url: https://greencart-api.herokuapp.com/api
+    description: Production server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: User ID
+        username:
+          type: string
+          description: Username
+        email:
+          type: string
+          format: email
+          description: User email
+        role:
+          type: string
+          enum: [admin, manager]
+          description: User role
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation date
+
+    Driver:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Driver ID
+        name:
+          type: string
+          description: Driver name
+        currentShiftHours:
+          type: number
+          minimum: 0
+          maximum: 24
+          description: Current shift hours
+        past7DayWorkHours:
+          type: number
+          minimum: 0
+          description: Work hours in past 7 days
+        isActive:
+          type: boolean
+          description: Driver active status
+        isFatigued:
+          type: boolean
+          description: Driver fatigue status
+        status:
+          type: string
+          enum: [Active, Inactive, Fatigued, Overtime]
+          description: Driver current status
+        efficiencyRating:
+          type: string
+          enum: [High, Normal, Reduced]
+          description: Driver efficiency rating
+        createdAt:
+          type: string
+          format: date-time
+
+    Route:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Route ID
+        routeId:
+          type: string
+          description: Route identifier
+        startLocation:
+          type: string
+          description: Starting location
+        endLocation:
+          type: string
+          description: Destination location
+        distanceKm:
+          type: number
+          minimum: 0
+          description: Route distance in kilometers
+        trafficLevel:
+          type: string
+          enum: [Low, Medium, High]
+          description: Traffic level
+        baseTimeMinutes:
+          type: number
+          minimum: 1
+          description: Base travel time in minutes
+        isActive:
+          type: boolean
+          description: Route active status
+        trafficMultiplier:
+          type: number
+          description: Traffic delay multiplier
+        fuelSurcharge:
+          type: number
+          description: Additional fuel cost per km
+        createdAt:
+          type: string
+          format: date-time
+
+    Order:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Order ID
+        orderId:
+          type: string
+          description: Order identifier
+        valueRs:
+          type: number
+          minimum: 0
+          description: Order value in rupees
+        assignedRoute:
+          $ref: '#/components/schemas/Route'
+        assignedDriver:
+          $ref: '#/components/schemas/Driver'
+        status:
+          type: string
+          enum: [pending, in-progress, delivered, late]
+          description: Order status
+        isOnTime:
+          type: boolean
+          description: On-time delivery status
+        profit:
+          type: number
+          description: Order profit after rules
+        fuelCost:
+          type: number
+          description: Fuel cost for delivery
+        penalty:
+          type: number
+          description: Late delivery penalty
+        bonus:
+          type: number
+          description: High-value bonus
+        deliveryTimestamp:
+          type: string
+          format: date-time
+          description: Expected delivery time
+        createdAt:
+          type: string
+          format: date-time
+
+    SimulationResult:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Simulation ID
+        kpis:
+          type: object
+          properties:
+            totalProfit:
+              type: number
+              description: Total profit from all orders
+            efficiencyScore:
+              type: number
+              description: Efficiency percentage
+            onTimeDeliveries:
+              type: integer
+              description: Number of on-time deliveries
+            lateDeliveries:
+              type: integer
+              description: Number of late deliveries
+            totalDeliveries:
+              type: integer
+              description: Total number of deliveries
+            totalFuelCost:
+              type: number
+              description: Total fuel cost
+            totalPenalties:
+              type: number
+              description: Total penalties applied
+            totalBonuses:
+              type: number
+              description: Total bonuses awarded
+        simulationData:
+          type: object
+          properties:
+            driversUsed:
+              type: integer
+              description: Number of drivers used
+            ordersProcessed:
+              type: integer
+              description: Number of orders processed
+            routesUsed:
+              type: integer
+              description: Number of routes used
+            timestamp:
+              type: string
+              format: date-time
+              description: Simulation run time
+        createdAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Detailed error information
+        field:
+          type: string
+          description: Field causing validation error
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user
+      description: Create a new user account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 30
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                role:
+                  type: string
+                  enum: [admin, manager]
+                  default: manager
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and get JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /drivers:
+    get:
+      tags:
+        - Drivers
+      summary: Get all drivers
+      description: Retrieve all drivers with statistics
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search by driver name
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
+      responses:
+        '200':
+          description: Drivers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  drivers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Driver'
+                  stats:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      active:
+                        type: integer
+                      fatigued:
+                        type: integer
+                      inactive:
+                        type: integer
+                      overtime:
+                        type: integer
+
+    post:
+      tags:
+        - Drivers
+      summary: Create new driver
+      description: Add a new driver to the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                currentShiftHours:
+                  type: number
+                  minimum: 0
+                  maximum: 24
+                  default: 0
+                past7DayWorkHours:
+                  type: number
+                  minimum: 0
+                  default: 0
+                isActive:
+                  type: boolean
+                  default: true
+      responses:
+        '201':
+          description: Driver created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /simulation/run:
+    post:
+      tags:
+        - Simulation
+      summary: Run simulation
+      description: Execute logistics simulation with business rules
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - availableDrivers
+                - routeStartTime
+                - maxHoursPerDay
+              properties:
+                availableDrivers:
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+                  description: Number of drivers to use
+                routeStartTime:
+                  type: string
+                  pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+                  description: Start time in HH:MM format
+                maxHoursPerDay:
+                  type: number
+                  minimum: 4
+                  maximum: 12
+                  description: Maximum working hours per day
+      responses:
+        '200':
+          description: Simulation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationResult'
+        '400':
+          description: Invalid simulation parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /dashboard/kpis:
+    get:
+      tags:
+        - Dashboard
+      summary: Get KPIs
+      description: Retrieve key performance indicators
+      responses:
+        '200':
+          description: KPIs retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalProfit:
+                    type: number
+                    description: Total profit in rupees
+                  efficiencyScore:
+                    type: number
+                    description: Efficiency percentage
+                  onTimeDeliveries:
+                    type: integer
+                    description: On-time delivery count
+                  lateDeliveries:
+                    type: integer
+                    description: Late delivery count
+                  totalDeliveries:
+                    type: integer
+                    description: Total delivery count
+                  totalFuelCost:
+                    type: number
+                    description: Total fuel cost
+                  totalPenalties:
+                    type: number
+                    description: Total penalties
+                  totalBonuses:
+                    type: number
+                    description: Total bonuses
+
+tags:
+  - name: Authentication
+    description: User authentication operations
+  - name: Drivers
+    description: Driver management operations
+  - name: Routes
+    description: Route management operations
+  - name: Orders
+    description: Order management operations
+  - name: Simulation
+    description: Simulation engine operations
+  - name: Dashboard
+    description: Analytics and KPI operations
