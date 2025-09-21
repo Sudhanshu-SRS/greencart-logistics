@@ -41,7 +41,9 @@
   },
   "jest": {
     "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": ["<rootDir>/src/tests/setup.js"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/tests/setup.js"
+    ],
     "moduleNameMapping": {
       "\\.(css|less|scss|sass)$": "identity-obj-proxy"
     },
@@ -51,7 +53,14 @@
       "!src/tests/**",
       "!src/**/*.test.{js,jsx}"
     ],
-    "coverageReporters": ["text", "lcov", "html"],
-    "testMatch": ["**/__tests__/**/*.{js,jsx}", "**/?(*.)+(spec|test).{js,jsx}"]
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.{js,jsx}",
+      "**/?(*.)+(spec|test).{js,jsx}"
+    ]
   }
 }
