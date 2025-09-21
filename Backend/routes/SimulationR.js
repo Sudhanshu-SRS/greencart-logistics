@@ -1,5 +1,5 @@
 const express = require("express");
-const SimulationService = require("../services/simulationService");
+const SimulationService = require("../services/SimulationService");
 const SimulationResult = require("../Models/simulationResultSchema");
 const auth = require("../Middleware/auth");
 const { validate } = require("../utils/validation");
