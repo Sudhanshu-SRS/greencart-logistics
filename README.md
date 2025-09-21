@@ -55,19 +55,56 @@ GreenCart Logistics is a comprehensive delivery management system built to optim
 
 ## 🚀 Setup Instructions
 
+## 🚀 Quick Start Guide
+
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- MongoDB (local or cloud instance)
-- Git
+- **Node.js** v16 or higher
+- **MongoDB** v5.0 or higher
+- **npm** v8 or higher
+
+### MongoDB Setup
+
+1. **Install MongoDB Community Edition** (if not already installed):
+
+   - Download from [MongoDB Official Website](https://www.mongodb.com/try/download/community)
+   - Follow installation instructions for your operating system
+
+2. **Start MongoDB service**:
+
+   **Windows:**
+
+   ```bash
+   # Run as Administrator
+   net start MongoDB
+   ```
+
+   **macOS:**
+
+   ```bash
+   brew services start mongodb-community
+   ```
+
+   **Linux:**
+
+   ```bash
+   sudo systemctl start mongod
+   ```
+
+3. **Verify MongoDB is running**:
+   ```bash
+   mongo --eval "db.stats()"
+   # or for newer versions:
+   mongosh --eval "db.stats()"
+   ```
 
 ### Backend Setup
 
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/Sudhanshu-SRS/greencart-logistics.git
-cd greencart-logistics/Backend
+git clone <repository-url>
+cd GreenCart-Logistics/Backend
 ```
 
 2. **Install dependencies**
@@ -80,32 +117,30 @@ npm install
    Create a `.env` file in the Backend directory:
 
 ```env
-NODE_ENV=development
 PORT=5000
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRE=7d
+MONGODB_URI=mongodb://localhost:27017/logistics
+JWT_SECRET=your-super-secret-jwt-key-here
+JWT_EXPIRES_IN=7d
+NODE_ENV=development
 ```
 
-4. **Test database connection**
+4. **Seed database with Excel data**
 
 ```bash
-npm run test-db
+node utils/seeder.js
 ```
 
-5. **Seed database with sample data**
+This will populate your database with:
+
+- **10 drivers** from your Excel data (Amit, Priya, Rohit, Neha, etc.)
+- **10 routes** with specific distances and traffic levels
+- **50 orders** distributed across all routes with realistic values
+
+5. **Verify data seeding**
 
 ```bash
-npm run seed
+node utils/verify-data.js
 ```
-
-6. **Start development server**
-
-```bash
-npm run dev
-```
-
-The backend server will start on `http://localhost:5000`
 
 ### Frontend Setup
 
@@ -167,6 +202,60 @@ JWT_EXPIRE=                  # JWT token expiration time
 
 ```env
 VITE_API_URL=               # Backend API base URL
+## 📊 Excel Data Implementation
+
+### Driver Data Structure
+
+The system has been populated with **10 drivers** based on your Excel data:
+
+| Driver Name | Current Shift Hours | Past 7 Days Total | Fatigue Status |
+|-------------|-------------------|------------------|----------------|
+| Amit        | 6h               | 51h              | Normal         |
+| Priya       | 6h               | 51h              | Normal         |
+| Rohit       | 10h              | 59h              | High Fatigue   |
+| Neha        | 9h               | 56h              | Medium Fatigue |
+| Karan       | 7h               | 50h              | Normal         |
+| Sneha       | 8h               | 58h              | Medium Fatigue |
+| Vikram      | 6h               | 59h              | High Fatigue   |
+| Anjali      | 6h               | 51h              | Normal         |
+| Manoj       | 9h               | 52h              | Medium Fatigue |
+| Pooja       | 10h              | 57h              | High Fatigue   |
+
+### Route Data Structure
+
+**10 routes** with specific distance and traffic parameters:
+
+| Route ID | From → To | Distance | Traffic Level | Base Time |
+|----------|-----------|----------|---------------|-----------|
+| RT001    | Mumbai Central → Andheri West | 15km | Low | 30min |
+| RT002    | Bandra → Powai | 12km | Medium | 45min |
+| RT003    | Thane → Navi Mumbai | 18km | High | 60min |
+| RT004    | Colaba → Marine Drive | 8km | Low | 20min |
+| RT005    | Borivali → Kandivali | 22km | High | 75min |
+| RT006    | Dadar → Kurla | 10km | Medium | 35min |
+| RT007    | Worli → Mahim | 6km | Low | 15min |
+| RT008    | Vashi → Belapur | 14km | Medium | 40min |
+| RT009    | Goregaon → Malad | 20km | High | 70min |
+| RT010    | Chembur → Ghatkopar | 9km | Medium | 25min |
+
+### Order Data Structure
+
+**50 orders** distributed across all routes with realistic values:
+
+- **5 orders per route** with varying order values
+- **Value range**: ₹650 - ₹4200 per order
+- **Total order value**: ~₹102,000 across all orders
+- **Distribution**: Ensures each route has representative workload
+
+### Business Calculations
+
+The system automatically calculates:
+
+1. **Driver Fatigue Impact**: Based on current shift hours and past 7-day totals
+2. **Route Efficiency**: Considering distance, traffic, and time factors
+3. **Order Profitability**: Including penalties, bonuses, and fuel costs
+4. **KPI Metrics**: Real-time dashboard updates with performance indicators
+
 VITE_APP_NAME=              # Application name
 ```
 
