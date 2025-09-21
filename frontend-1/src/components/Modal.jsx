@@ -10,7 +10,7 @@ const Modal = ({ title, children, onClose, size = "lg", show = false }) => {
 
     if (show) {
       document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden"; // Prevent background scrolling
+      document.body.style.overflow = "hidden"; // Prevent background scrolling fromk
     }
 
     return () => {
