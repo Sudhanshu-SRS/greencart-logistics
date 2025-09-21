@@ -13,7 +13,16 @@ const simulationRoutes = require("./routes/SimulationR");
 const dashboardRoutes = require("./routes/DashboardR");
 
 const app = express();
-
+//cors
+// Backend/server.js
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://greencart-logistic.netlify.app', // Add your Netlify URL
+    'https://your-custom-domain.com' // If you have a custom domain
+  ],
+  credentials: true
+}));
 // Middleware
 app.use(helmet());
 app.use(cors());
