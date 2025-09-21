@@ -1,0 +1,189 @@
+@import "./Auth.css";
+@import "./Management.css";
+@import "./Modal.css";
+@import "./Simulation.css";
+@import "./Dashboard.css";
+.App {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.main-content {
+  min-height: calc(100vh - 56px);
+  padding-top: 0;
+}
+
+/* Additional global styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Bootstrap overrides */
+.card {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.btn {
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.form-control {
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Custom Bootstrap card borders */
+.border-left-success {
+  border-left: 0.25rem solid #28a745 !important;
+}
+
+.border-left-info {
+  border-left: 0.25rem solid #17a2b8 !important;
+}
+
+.border-left-primary {
+  border-left: 0.25rem solid #007bff !important;
+}
+
+.border-left-warning {
+  border-left: 0.25rem solid #ffc107 !important;
+}
+
+/* Loading spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Chart containers */
+.chart-container {
+  position: relative;
+  height: 300px;
+}
+
+/* Table styles */
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.075);
+}
+
+/* Badge styles */
+.badge {
+  font-size: 0.875em;
+}
+
+/* Card shadows */
+.shadow {
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Status indicators */
+.status-active {
+  color: #28a745;
+}
+
+.status-inactive {
+  color: #dc3545;
+}
+
+.status-fatigued {
+  color: #ffc107;
+}
+
+.status-fresh {
+  color: #28a745;
+}
+
+/* Navigation active state */
+.navbar-nav .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.375rem;
+}
+
+/* Button enhancements */
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+/* Toast notifications */
+.Toastify__toast {
+  border-radius: 0.5rem;
+}
+
+/* Progress bars */
+.progress {
+  height: 0.5rem;
+  border-radius: 0.375rem;
+}
+
+/* List group enhancements */
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
